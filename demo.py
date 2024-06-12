@@ -88,13 +88,15 @@ if evaluation == True:
     step_size = 10
     
     # components refer to eigen directions, also could use cal_fisher_information to get the components
-    variance, components, pca = PCA(weight_holder,cut_off,window_size_epoch_unit = 10,epoch_size = 1200)
+    variance, components, pca = PCA(weight_holder,cut_off,window_size = 12000)
     
     flatness = cal_flatness(model,components,data_x = train_x,data_y = train_y,layer_index = layer_index,cut_off = cut_off,step = step_size) ######### flatness in each direction
     
+    weight_projected = project_to_low_dimension(weight_holder, cut_off, window_size = 12000)
+    
     plt.figure()
-    # includes the first component
-    plt.plot(variance[1:cut_off:step_size], flatness)
+    # excludes the first component
+    plt.plot(variance[0:cut_off:step_size][1:], flatness[1:])
     plt.xscale('log')
     plt.yscale('log')
     plt.xlabel('$\sigma^2$')
@@ -110,3 +112,14 @@ if evaluation == True:
     plt.yscale('log')
     plt.legend()
     
+    plt.figure()
+    # first component vs second component
+    plt.plot(weight_projected[:,0], weight_projected[:,1])
+    plt.xlabel('$theta1$')
+    plt.ylabel('$theta2$')
+    
+    plt.figure()
+    # 49 th component vs 50 th component
+    plt.plot(weight_projected[:,48], weight_projected[:,49])
+    plt.xlabel('$theta49$')
+    plt.ylabel('$theta50$')

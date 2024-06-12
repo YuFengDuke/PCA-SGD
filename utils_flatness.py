@@ -348,17 +348,26 @@ def cal_loss_landscape_for_given_direction(model, direction, data_x, data_y, sea
     return np.linspace(search_range_n, search_range_p, search_point), change_loss
 
 #### perform PCA on trajectories
-def PCA(weight_holder,component,window_size_epoch_unit = 1,epoch_size = 1200):
+def PCA(weight_holder,cut_off, window_size = 12000):
     import sklearn.decomposition
     print('Calculating Principle Components...')
-    # determine the window size
-    window = int(epoch_size*window_size_epoch_unit)
-    pca_dimension = sklearn.decomposition.PCA(n_components = component)
-    weight = weight_holder[len(weight_holder)-window:len(weight_holder)-1]
+    pca_dimension = sklearn.decomposition.PCA(n_components = cut_off)
+    weight = weight_holder[len(weight_holder)-window_size:len(weight_holder)-1]
     pca_dimension.fit(np.array(weight))
     variance = pca_dimension.explained_variance_
     component = pca_dimension.components_
     return variance,component,pca_dimension
+
+#### project trajectories to low dimension 
+def project_to_low_dimension(weight_holder, cut_off, window_size = 12000):
+    import sklearn.decomposition
+    print('Projecting weight trajectories to Principle Components...')
+    pca_dimension = sklearn.decomposition.PCA(n_components = cut_off)
+    weight = weight_holder[len(weight_holder)-window_size:len(weight_holder)-1]
+    pca_dimension.fit(np.array(weight))
+    weight_projected = pca_dimension.transform(np.array(weight))
+    
+    return weight_projected
 
 
 ###################### Examples
